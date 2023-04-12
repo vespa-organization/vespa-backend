@@ -9,15 +9,17 @@ export const pubSub = new PubSub()
 
 @Injectable()
 export class VehiclesService {
+  private latitudeBase = 45.5
+  private longitudeBase = 15.5
+  private factor = 0.5
+  private pingIntervalInMilliseconds = 2_000
+
   constructor() {
-    interval(1000)
-      .pipe(
-        map(() => this.generateRandomCoordinate()),
-        map((coordinate) => {
-          pubSub.publish('coordinate', { coordinate })
-        }),
-      )
-      .subscribe()
+    interval(this.pingIntervalInMilliseconds)
+      .pipe(map(() => this.generateRandomCoordinate()))
+      .subscribe((coordinate) => {
+        pubSub.publish('coordinate', { coordinate })
+      })
   }
 
   findOneById(id: number): Vehicle {
@@ -29,8 +31,8 @@ export class VehiclesService {
   }
 
   private generateRandomCoordinate(): Coordinate {
-    const latitude = Math.random() * (90 - -90) + -90
-    const longitude = Math.random() * (180 - -180) + -180
+    const latitude = Math.random() * this.factor + this.latitudeBase
+    const longitude = Math.random() * this.factor + this.longitudeBase
     const coordinate = new Coordinate()
     coordinate.latitude = latitude
     coordinate.longitude = longitude
